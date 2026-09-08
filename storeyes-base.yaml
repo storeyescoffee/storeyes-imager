@@ -1,0 +1,17 @@
+layer:
+  base: storeyes-trixie-base
+  network: network-manager
+  ssh: openssh-server
+
+ssh:
+  pubkey_user1: ${@SRCROOT}/keys/mohcine.pub
+  pubkey_only: y
+
+image:
+  layer: image-rpios
+  compression: zstd
+
+sys:
+  # Persist downloaded .deb packages across builds (bind-mounted as
+  # /var/cache/apt/archives in the chroot). Dir must exist before building.
+  apt_cachedir: ${@SRCROOT}/.apt-cache

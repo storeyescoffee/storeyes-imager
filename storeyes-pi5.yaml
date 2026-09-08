@@ -1,0 +1,21 @@
+include:
+  file: storeyes-base.yaml
+
+device:
+  layer: rpi5
+  # Login account that the SSH key (ssh.pubkey_user1) is installed on.
+  user1: m0hcine24
+  # Give that user passwordless sudo. Without this the account has no sudo
+  # at all (user1sudo defaults to 'none'), root's password is locked and
+  # root SSH is disabled - so a broken device can only be recovered by
+  # re-flashing. 'nopasswd' also stops the cleanup hook from purging the
+  # sudo binary.
+  user1sudo: nopasswd
+
+image:
+  boot_part_size: 256M
+  root_part_size: 4G
+  name: storeyes-pi5
+
+nm:
+  cmds: ${@SRCROOT}/nm/storeyes.cmds
