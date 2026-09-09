@@ -11,20 +11,17 @@ device:
   # re-flashing. 'nopasswd' also stops the cleanup hook from purging the
   # sudo binary.
   user1sudo: nopasswd
-  # Console and greeter login, and screen unlock. CHANGE THIS. It is in a git
-  # repo, so treat it as public. Without it the account is created with
-  # --disabled-password and the only way in is the ssh key, which is what left
-  # earlier cards unreachable from a keyboard. Setting it does not weaken ssh:
+  # Console login. CHANGE THIS. It is in a git repo, so treat it as public.
+  # Without it the account is created with --disabled-password, and on a
+  # headless image that means the console login prompt cannot be passed at all
+  # and the ssh key is the only way in. Setting it does not weaken ssh:
   # ssh.pubkey_only still refuses password auth. It does not weaken sudo either,
   # because user1sudo is set explicitly above and this only changes the default.
   user1pass: Storeyes@2026
 
 image:
   boot_part_size: 256M
-  # The Raspberry Pi desktop does not fit in 4G. raspberrypi-ui-mods alone
-  # unpacks to about 1.3G before its dependency tree, and chromium is another
-  # large chunk on top.
-  root_part_size: 8G
+  root_part_size: 4G
   name: storeyes-pi5
 
 nm:
