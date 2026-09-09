@@ -2,10 +2,10 @@
 # X-Env-Layer-Name: storeyes-desktop
 # X-Env-Layer-Desc: The Raspberry Pi OS desktop, with lightdm autologin so the
 #  device comes up to a usable screen without anyone typing at the greeter.
-#  Needs the Raspberry Pi archive: raspberrypi-ui-mods and pi-greeter are not
-#  in Debian.
+#  Needs the Raspberry Pi archive, since raspberrypi-ui-mods is not in Debian.
+#  The greeter itself is Debian's, for reasons the packages block explains.
 # X-Env-Layer-Category: service
-# X-Env-Layer-Version: 1.0.0
+# X-Env-Layer-Version: 1.1.0
 # X-Env-Layer-Requires: rpi-debian-trixie
 # METAEND
 ---
@@ -16,7 +16,11 @@ mmdebstrap:
     # xserver-xorg. Listed below are only the pieces it merely Recommends, or
     # does not mention at all, which is why they cannot be relied on to arrive.
     - raspberrypi-ui-mods
-    - pi-greeter
+    # Not pi-greeter. It ships /usr/sbin/pi-greeter, but its
+    # /usr/share/xgreeters/pi-greeter-labwc.desktop is also shipped by
+    # raspberrypi-ui-mods, and neither declares Replaces, so dpkg refuses to
+    # unpack and the whole build dies. Debian's greeter has no such overlap.
+    - lightdm-gtk-greeter
     - lxterminal
     - chromium
     - fonts-dejavu-core
@@ -35,11 +39,16 @@ mmdebstrap:
       # cannot quietly take it away. This only removes the greeter prompt. The
       # account keeps its password, so sudo, screen locking and console login
       # are unaffected, and ssh stays key-only because ssh.pubkey_only is set.
+      # greeter-session is named explicitly because raspberrypi-ui-mods still
+      # ships pi-greeter-labwc.desktop and pi-greeter-wayfire.desktop, which
+      # point at a /usr/sbin/pi-greeter that is not installed. Left to choose,
+      # lightdm could pick one of those and fail to draw anything.
       set -eu
       install -d -m 0755 "$1/etc/lightdm/lightdm.conf.d"
       printf '%s\n' \
         '[Seat:*]' \
         "autologin-user=$IGconf_device_user1" \
         'autologin-user-timeout=0' \
+        'greeter-session=lightdm-gtk-greeter' \
         > "$1/etc/lightdm/lightdm.conf.d/70-storeyes-autologin.conf"
       chmod 0644 "$1/etc/lightdm/lightdm.conf.d/70-storeyes-autologin.conf"
