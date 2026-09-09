@@ -1,0 +1,45 @@
+# METABEGIN
+# X-Env-Layer-Name: storeyes-desktop
+# X-Env-Layer-Desc: The Raspberry Pi OS desktop, with lightdm autologin so the
+#  device comes up to a usable screen without anyone typing at the greeter.
+#  Needs the Raspberry Pi archive: raspberrypi-ui-mods and pi-greeter are not
+#  in Debian.
+# X-Env-Layer-Category: service
+# X-Env-Layer-Version: 1.0.0
+# X-Env-Layer-Requires: rpi-debian-trixie
+# METAEND
+---
+mmdebstrap:
+  packages:
+    # raspberrypi-ui-mods pulls the desktop itself: lightdm, labwc, wayfire,
+    # lxpanel, pcmanfm, lxsession, raspi-config, raspberrypi-sys-mods and
+    # xserver-xorg. Listed below are only the pieces it merely Recommends, or
+    # does not mention at all, which is why they cannot be relied on to arrive.
+    - raspberrypi-ui-mods
+    - pi-greeter
+    - lxterminal
+    - chromium
+    - fonts-dejavu-core
+  customize-hooks:
+    - $BDEBSTRAP_HOOKS/enable-units "$1" lightdm
+    - |-
+      #
+      # Come up to the desktop rather than a text console.
+      set -eu
+      chroot "$1" systemctl set-default graphical.target
+    - |-
+      #
+      # Autologin.
+      #
+      # A drop-in rather than an edit to lightdm.conf, so a lightdm upgrade
+      # cannot quietly take it away. This only removes the greeter prompt. The
+      # account keeps its password, so sudo, screen locking and console login
+      # are unaffected, and ssh stays key-only because ssh.pubkey_only is set.
+      set -eu
+      install -d -m 0755 "$1/etc/lightdm/lightdm.conf.d"
+      printf '%s\n' \
+        '[Seat:*]' \
+        "autologin-user=$IGconf_device_user1" \
+        'autologin-user-timeout=0' \
+        > "$1/etc/lightdm/lightdm.conf.d/70-storeyes-autologin.conf"
+      chmod 0644 "$1/etc/lightdm/lightdm.conf.d/70-storeyes-autologin.conf"

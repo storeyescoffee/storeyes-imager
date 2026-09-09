@@ -1,11 +1,12 @@
 # METABEGIN
 # X-Env-Layer-Name: storeyes-trixie-base
 # X-Env-Layer-Desc: Debian Trixie with apt, utils, wired and wifi networking,
-#  ssh. Same composition as trixie-minbase, but swaps systemd-net-min for
-#  network-manager as the network-activator, since pi5-camera-recorder
-#  requires NetworkManager (nmcli) for its network rebounce feature.
+#  ssh and the Raspberry Pi OS desktop. Same composition as trixie-minbase, but
+#  swaps systemd-net-min for network-manager as the network-activator, since
+#  pi5-camera-recorder requires NetworkManager (nmcli) for its network rebounce
+#  feature.
 # X-Env-Layer-Category: suite
-# X-Env-Layer-Version: 1.0.0
+# X-Env-Layer-Version: 2.0.0
 # X-Env-Layer-Requires: debian-trixie-arm64-multi,
 #  rpi-debian-trixie,
 #  rpi-misc-utils,
@@ -17,6 +18,7 @@
 #  systemd-timesyncd,
 #  wireless-regulatory,
 #  iwd,
-#  network-manager
+#  network-manager,
+#  storeyes-desktop
 # METAEND
 ---

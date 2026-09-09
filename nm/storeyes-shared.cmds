@@ -1,1 +1,3 @@
-nmcli --offline connection add type wifi ifname wlan0 con-name "storeyes" ssid "storeyes" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "12345678" connection.autoconnect yes | grep -v '^Warning' > /etc/NetworkManager/system-connections/storeyes.nmconnection
+# Each line is run inside the chroot as `eval nmcli $line`, so the nmcli is
+# already there. Do not repeat it.
+--offline connection add type wifi ifname wlan0 con-name "storeyes" ssid "storeyes" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "12345678" connection.autoconnect yes | grep -v '^Warning' > /etc/NetworkManager/system-connections/storeyes.nmconnection
