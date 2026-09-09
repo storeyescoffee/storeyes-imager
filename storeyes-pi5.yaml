@@ -11,18 +11,42 @@ device:
   # re-flashing. 'nopasswd' also stops the cleanup hook from purging the
   # sudo binary.
   user1sudo: nopasswd
-  # Console login. CHANGE THIS. It is in a git repo, so treat it as public.
-  # Without it the account is created with --disabled-password, and on a
-  # headless image that means the console login prompt cannot be passed at all
-  # and the ssh key is the only way in. Setting it does not weaken ssh:
+  # Console login. The password is 12345.
+  #
+  # It has to be given as a hash, not as user1pass. The plaintext user1pass
+  # variable is validated against
+  #   ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
+  # (see layer/base/device-user-credentials.yaml in rpi-image-gen), so a short
+  # all-digit password is rejected at config-parse time. user1passhash is
+  # declared `Valid: string` and is piped straight into `chpasswd -e`, so it
+  # takes anything. The two conflict; set exactly one.
+  #
+  # Regenerate with:  openssl passwd -6 '<password>'
+  # sha512crypt is what rpi-image-gen's own bin/genpasswd emits by default and
+  # what the trixie chroot accepts. safe_kv() in lib/common.sh escapes a bare
+  # `$` before the env file is sourced, so the $6$salt$hash form survives the
+  # build unexpanded.
+  #
+  # Without a password the account is created with --disabled-password, and on
+  # a headless image that means the console login prompt cannot be passed at
+  # all and the ssh key is the only way in. Setting it does not weaken ssh:
   # ssh.pubkey_only still refuses password auth. It does not weaken sudo either,
   # because user1sudo is set explicitly above and this only changes the default.
-  user1pass: Storeyes@2026
+  user1passhash: '$6$storeyes1$CSJkQK/lzq7I7B22..tnaqPDD6AdxOq.I7KZ6xCrq4ipec993URRmSpK1hz4VkX3YvWrFPxp6af0ioIVrdRTm/'
 
 image:
   boot_part_size: 256M
   root_part_size: 4G
   name: storeyes-pi5
+
+# Wireless regulatory domain. The wireless-regulatory layer defaults this to
+# 00, the world domain, which is written to
+# /etc/modprobe.d/cfg80211_regdomain.conf as a cfg80211 module option. Under 00
+# every 5 GHz band is flagged NO-IR, so the radio will not initiate on 5 GHz and
+# 2.4 GHz is capped at channels 1-11. A real country code is required for the
+# card to use the AP's channel. MA = Morocco (ISO 3166-1 alpha-2).
+ieee80211:
+  regdom: MA
 
 nm:
   # Must name a file that exists. The network-manager layer guards this path

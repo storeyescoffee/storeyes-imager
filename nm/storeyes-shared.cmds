@@ -1,3 +1,11 @@
 # Each line is run inside the chroot as `eval nmcli $line`, so the nmcli is
 # already there. Do not repeat it.
---offline connection add type wifi ifname wlan0 con-name "storeyes" ssid "storeyes" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "12345678" connection.autoconnect yes | grep -v '^Warning' > /etc/NetworkManager/system-connections/storeyes.nmconnection
+# No `ifname`: it bakes interface-name=wlan0 into the keyfile and the profile
+# then matches nothing if the wifi device comes up under any other name.
+# There is one radio, so let NM pick it.
+#
+# autoconnect-retries 0 means retry forever. The default is 4 attempts,
+# after which NM blocks the profile until something re-triggers it - on a
+# headless unit that boots before its AP is up, that is a permanent loss of
+# network with a perfectly normal-looking login prompt on the console.
+--offline connection add type wifi con-name "storeyes" ssid "storeyes" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "12345678" connection.autoconnect yes connection.autoconnect-retries 0 | grep -v '^Warning' > /etc/NetworkManager/system-connections/storeyes.nmconnection

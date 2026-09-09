@@ -1,6 +1,16 @@
 layer:
   base: storeyes-trixie-base
   network: network-manager
+  # Without this the image has no working wifi at all. NetworkManager's default
+  # wifi backend is wpa_supplicant, and wpasupplicant is only a Recommends of
+  # the network-manager package - the build installs no recommends, so it is
+  # absent. iwd is installed and its unit is enabled (it comes in via the
+  # storeyes-trixie-base layer), so it owns wlan0 while NM has no supplicant to
+  # talk to and parks the device as unavailable. This layer drops
+  # /etc/NetworkManager/conf.d/iwd.conf with wifi.backend=iwd and
+  # wifi.iwd.autoconnect=false, which points NM at the daemon that is actually
+  # running and keeps autoconnect driven by the keyfile profile under nm.cmds.
+  wifi: network-manager-iwd
   ssh: openssh-server
 
 ssh:
